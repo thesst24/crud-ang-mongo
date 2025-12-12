@@ -1,12 +1,13 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
-import { ServiceCrud } from '../../service-crud';
-import { FormGroup, FormBuilder} from '@angular/forms';
+import { Crud } from './../../service/crud';
+import { FormGroup, FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 
 @Component({
   selector: 'app-add-book',
-  imports: [],
+  standalone: true,
+  imports: [ReactiveFormsModule],
   templateUrl: './add-book.html',
   styleUrl: './add-book.css',
 })
@@ -18,7 +19,7 @@ export class AddBook {
     public formBuilder: FormBuilder,
     private router: Router,
     private ngZone: NgZone,
-    private crudService: ServiceCrud
+    private Crud: Crud
   ) { 
     this.bookForm =this.formBuilder.group({
       name: [''],
@@ -32,7 +33,7 @@ export class AddBook {
   }
 
   onSubmit(): any {
-    this.crudService.AddBook(this.bookForm.value)
+    this.Crud.AddBook(this.bookForm.value)
     .subscribe(()=> {
       console.log('Data added successfully');
        this.ngZone.run(() => this.router.navigateByUrl('/books-list'))

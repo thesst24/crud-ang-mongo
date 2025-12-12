@@ -1,68 +1,51 @@
 const express = require('express');
-const app = express();
+const router = express.Router();
+const Book = require('../model/Book');
 
-const bookRoute = express.Router();
-let Book = require('../model/Book');
+router.post('/add-book', async (req, res, next) => {
+  try {
+    const book = await Book.create(req.body); // ไม่มี callback แล้ว
+    res.status(201).json(book);
+  } catch (error) {
+    next(error);
+  }
+});
 
-//add book
-bookRoute.route('/add-book').post((req,res,next)=> {
-    Book.create(req.body, (error, data) => {
-        if (error) {
-            return next(error);
-        } else {
-            res.json(data)
-        }
-    })
-})
+router.get('/', async (req, res, next) => {
+  try {
+    const books = await Book.find();
+    res.json(books);
+  } catch (error) {
+    next(error);
+  }
+});
 
-// Get all book
-bookRoute.route('/').get((req, res) => {
-    Book.find((error, data) => {
-        if(error){
-            return next(error);
-        } else {
-            res.json(data);
-        }
-    })
-})
+router.get('/read-book/:id', async (req, res, next) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    res.json(book);
+  } catch (error) {
+    next(error);
+  }
+});
 
-// Get book
-bookRoute.route('/read-book/:id').get((req, res) => {
-    Book.findById(req.params.id, (error, data) => {
-        if(error){
-            return next(error);
-        } else {
-            res.json(data);
-        }
-    })
-})
+router.put('/update-book/:id', async (req, res, next) => {
+  try {
+    const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(book);
+  } catch (error) {
+    next(error);
+  }
+});
 
-// Update book
-bookRoute.route('/update-book/:id').put((req, res, next) => {
-    Book.findByIdAndUpdate(req.params.id, {
-        $set: req.body
-    }, (error, data) => {
-        if(error){
-            return next(error);
-            console.log(error)
-        } else {
-            res.json(data);
-            console.log('Book Updated Successfully');
-        }
-    })
-})
+router.delete('/delete-book/:id', async (req, res, next) => {
+  try {
+    await Book.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+});
 
-// delete Book
-bookRoute.route('/delete-book/:id').delete((req, res, next) => {
-    Book.findByIdAndRemove(req.params.id, (error, data) => {
-        if(error){
-            return next(error);
-        } else {
-            res.status(200).json({
-                msg: data
-            });
-        }
-    })
-})
+module.exports = router;
 
-module.exports = bookRoute;
